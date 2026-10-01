@@ -5,3 +5,6 @@ Client-Name : REST-Client
 ###
 GET http://localhost:5087/orders/0
 Accept: application/json
+
+###
+GET http://localhost:5087/api/management/apis
