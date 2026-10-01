@@ -10,12 +10,19 @@ public static class OrdersrdersEndpoints
 
         ordersGroup.MapGet("/{id}", (int id) =>
         {
-            
-            return Results.Ok (new
+            if (id <= 0)
+                return Results.NotFound($"Order {id} Noit Found ");
+
+            else
             {
-                Id = id , 
-                name = $"order{id}"
-            });
+                return Results.Ok (new
+                {
+                    Id = id , 
+                    name = $"order{id}"
+                });
+                
+            }
+            
         });
     }
 }
