@@ -1,2 +1,6 @@
 GET http://localhost:5087/users/10
 Accept: application/json
+
+###
+GET http://localhost:5087/orders/10
+Accept: application/json
