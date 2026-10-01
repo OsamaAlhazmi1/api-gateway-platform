@@ -1,6 +1,6 @@
-GET http://localhost:5087/users/0
+GET http://localhost:5087/users/8
 Accept: application/json
-Client-Name = REST-Client
+Client-Name : REST-Client
 
 ###
 GET http://localhost:5087/orders/0
