@@ -2,6 +2,7 @@ using Gateway.API.Data;
 using Gateway.API.DTOs;
 using Gateway.API.DTOs.ApiDefinitionDTOs;
 using Gateway.API.Models;
+using Gateway.API.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace Gateway.API.Endpoints;
@@ -17,7 +18,7 @@ public static class ManagementEndpoint
 
         managementGroup.MapGet("/status", () =>
         {
-            
+
             return Results.Ok(new
             {
                 status = "running",
@@ -26,113 +27,86 @@ public static class ManagementEndpoint
         });
 
 
-        managementGroup.MapGet("/apis",  async (GatewayDbContext context) =>
+        managementGroup.MapGet("/apis", async (ApiDefinitionService service) =>
         {
-            var apiList =  await context.ApiDefinitions.Select(api=> new ApiDefinitionResponseDTO(
-                Id: api.Id,
-                Name: api.Name,
-                RoutePrefix: api.RoutePrefix
-            )).AsNoTracking().ToListAsync();
- 
-            
+            var apiList = await service.GetAllAsync();
+
             return Results.Ok(apiList);
         });
 
-        managementGroup.MapPost("/apis",async (GatewayDbContext context , CreateApiDefinitionDTO dto) =>
+        managementGroup.MapPost("/apis", async (ApiDefinitionService service, CreateApiDefinitionDTO dto) =>
         {
+            var newApi = await service.CreateAsync(dto);
 
-
-            var exist = await context.ApiDefinitions.FirstOrDefaultAsync
-            (
-            api=>api.Name==dto.Name||
-            api.RoutePrefix == dto.RoutePrefix
-            ); 
-
-            if (exist!=null)
-                return Results.Conflict($"An API ({dto.Name}) with the same name or route prefix ({dto.RoutePrefix}) already exists"); 
-            
-            var newApi = new ApiDefinition()
-            {
-                Name = dto.Name,
-                RoutePrefix= dto.RoutePrefix,
-                DestinationAddress= dto.DestinationAddress
-            }; 
-            await context.ApiDefinitions.AddAsync(newApi);
-            await context.SaveChangesAsync(); 
+            if (newApi == null)
+                return Results.Conflict($"An API ({dto.Name}) with the same name or route prefix ({dto.RoutePrefix}) already exists");
 
             var response = new ApiDefinitionResponseDTO(
-                Id: newApi.Id, 
-                Name:newApi.Name, 
-                RoutePrefix:newApi.RoutePrefix
+                Id: newApi.Id,
+                Name: newApi.Name,
+                RoutePrefix: newApi.RoutePrefix
             );
 
-            return Results.Ok(response); 
+            return Results.Ok(response);
 
 
         }).WithName(GetAllApisEndpointName);
 
-        managementGroup.MapGet("/apis/{id}", async (int id , GatewayDbContext context) =>
+
+        managementGroup.MapGet("/apis/{id}", async (int id, ApiDefinitionService service) =>
         {
-            var api = await context.ApiDefinitions.FirstOrDefaultAsync(api=>api.Id == id); 
+            var api = await service.GetByIdAsync(id);
 
             if (api == null)
                 return Results.NotFound($"API with {id} Not Found");
 
             else
             {
-                var response = new ApiDefinitionResponseDTO(
-                    Id: api.Id,
-                    Name:api.Name,
-                    RoutePrefix:api.RoutePrefix
-                );
-
-                return Results.Ok(response); 
+                return Results.Ok(api);
             }
-
 
         }).WithName(GetApiByTheID);
 
-        managementGroup.MapPut("/apis/{id}", async (int id , GatewayDbContext context, UpdateApiDefinitionDTO dto) =>
+
+        managementGroup.MapPut("/apis/{id}", async (int id, ApiDefinitionService service, UpdateApiDefinitionDTO dto) =>
         {
-            var api = await context.ApiDefinitions.FirstOrDefaultAsync(p=>p.Id == id); 
-
-            if (api == null)
-                return Results.NotFound($"API with {id} Not Found");
-
-            var exist = await context.ApiDefinitions.AnyAsync(existing =>
-            existing.Id != id &&
-            (existing.Name == dto.Name ||
-             existing.RoutePrefix == dto.RoutePrefix)); 
-            if (exist)
-                return Results.Conflict($"An API ({dto.Name}) with the same name or route prefix ({dto.RoutePrefix}) already exists");
-
-            else
+            try
             {
-                api.Name= dto.Name; 
-                api.RoutePrefix= dto.RoutePrefix; 
-                api.DestinationAddress = dto.DestinationAddress; 
-                await context.SaveChangesAsync(); 
-                return Results.Ok(new ApiDefinitionResponseDTO(
-                    Id: api.Id, 
-                    Name: api.Name, 
+                var api = await service.UpdateAsync(id, dto);
+
+                if (api == null)
+                    return Results.NotFound($"API with {id} Not Found");
+
+
+                var response = new ApiDefinitionResponseDTO(
+                    Id: api.Id,
+                    Name: api.Name,
                     RoutePrefix: api.RoutePrefix
-                )); 
+                );
+
+                return Results.Ok(response);
+
             }
-            
+            catch (InvalidOperationException ex)
+            {
+                return Results.Conflict(ex.Message);
+            }
+
+
+
+
         });
 
-        managementGroup.MapDelete("/apis/{id}", async (int id , GatewayDbContext context) =>
+        managementGroup.MapDelete("/apis/{id}", async (int id, ApiDefinitionService service) =>
         {
-            var api = await context.ApiDefinitions.FirstOrDefaultAsync(p=>p.Id == id); 
-            
-            if (api == null)
+            var deleted = await service.DeleteAsync(id);
+
+            if (!deleted)
                 return Results.NotFound($"API with {id} Not Found");
-            else
-            {
-                context.ApiDefinitions.Remove(api);
-                await context.SaveChangesAsync(); 
-                return Results.Ok($"API with Id {id} has been Removed");
-            }
+
+
+            return Results.Ok($"API with Id {id} has been Removed");
+
         });
     }
 }

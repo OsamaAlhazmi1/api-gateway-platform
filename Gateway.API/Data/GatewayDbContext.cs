@@ -11,6 +11,8 @@ public class GatewayDbContext(DbContextOptions<GatewayDbContext> options)
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<ApiDefinition>().HasIndex(api=>api.Name).IsUnique(); 
+        modelBuilder.Entity<ApiDefinition>().HasIndex(api=>api.RoutePrefix).IsUnique(); 
         modelBuilder.Entity<ApiDefinition>().HasData(
             new ApiDefinition
             {
