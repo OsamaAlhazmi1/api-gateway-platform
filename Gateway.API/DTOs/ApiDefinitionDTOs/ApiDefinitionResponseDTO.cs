@@ -1,6 +1,6 @@
 namespace Gateway.API.DTOs;
 
-public record ApiDefinitionResponseDTOs(
+public record ApiDefinitionResponseDTO(
     int Id , 
     string Name ,
     string RoutePrefix
