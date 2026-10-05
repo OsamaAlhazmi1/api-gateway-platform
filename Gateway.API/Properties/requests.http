@@ -8,3 +8,13 @@ Accept: application/json
 
 ###
 GET http://localhost:5087/api/management/apis
+
+###
+POST http://localhost:5087/api/management/apis
+Content-Type: application/json
+
+{
+     "Name" :"Product",
+     "RoutePrefix":"/products",
+     "DestinationAddress":"http://localhost:7003/"
+}
