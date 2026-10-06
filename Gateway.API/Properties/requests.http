@@ -3,7 +3,7 @@ Accept: application/json
 Client-Name : REST-Client
 
 ###
-GET http://localhost:5087/orders/0
+GET http://localhost:5087/store/5
 Accept: application/json
 
 ###
@@ -23,16 +23,16 @@ Content-Type: application/json
 GET http://localhost:5087/api/management/apis/0
 
 ### 
-PUT http://localhost:5087/api/management/apis/1
+PUT http://localhost:5087/api/management/apis/2
 Content-Type: application/json
 
 {
-    "Name" :"User Management API",
-    "RoutePrefix":"/users",
-    "DestinationAddress":"http://localhost:5024/"
+    "Name" :"Orders Management API",
+    "RoutePrefix":"/store",
+    "DestinationAddress":"http://localhost:5297/"
 }
 
 ###
 
-DELETE  http://localhost:5087/api/management/apis/4
+DELETE  http://localhost:5087/api/management/apis/5
 
