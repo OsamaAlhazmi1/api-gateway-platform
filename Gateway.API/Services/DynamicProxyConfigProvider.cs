@@ -1,13 +1,16 @@
 using Gateway.API.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Primitives;
 using Yarp.ReverseProxy.Configuration;
 
 namespace Gateway.API.Services;
 
 public class DynamicProxyConfigProvider(IServiceScopeFactory scopeFactory) : IProxyConfigProvider
 {
+    private DynamicProxyConfig? currentConfig;
     public IProxyConfig GetConfig()
     {
+
         using var socpe = scopeFactory.CreateScope();
         var context = socpe.ServiceProvider.GetRequiredService<GatewayDbContext>();
         var apiDefinitions = context.ApiDefinitions.AsNoTracking().ToList();
@@ -46,8 +49,16 @@ public class DynamicProxyConfigProvider(IServiceScopeFactory scopeFactory) : IPr
             }
 
         }).ToList();
+        currentConfig = new DynamicProxyConfig(routes, clusters);
 
-        
-        return new DynamicProxyConfig(routes,clusters);
+
+        return currentConfig;
     }
+
+
+    public void Reload()
+    {
+        currentConfig?.SignalChange();
+    }
+
 }

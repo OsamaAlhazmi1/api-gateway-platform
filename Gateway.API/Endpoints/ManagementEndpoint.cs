@@ -34,12 +34,17 @@ public static class ManagementEndpoint
             return Results.Ok(apiList);
         });
 
-        managementGroup.MapPost("/apis", async (ApiDefinitionService service, CreateApiDefinitionDTO dto) =>
+        managementGroup.MapPost("/apis", async (ApiDefinitionService service,
+        CreateApiDefinitionDTO dto,
+        DynamicProxyConfigProvider proxyConfigProvider) =>
         {
+            
             var newApi = await service.CreateAsync(dto);
 
             if (newApi == null)
                 return Results.Conflict($"An API ({dto.Name}) with the same name or route prefix ({dto.RoutePrefix}) already exists");
+
+            proxyConfigProvider.Reload();
 
             var response = new ApiDefinitionResponseDTO(
                 Id: newApi.Id,
@@ -68,7 +73,10 @@ public static class ManagementEndpoint
         }).WithName(GetApiByTheID);
 
 
-        managementGroup.MapPut("/apis/{id}", async (int id, ApiDefinitionService service, UpdateApiDefinitionDTO dto) =>
+        managementGroup.MapPut("/apis/{id}", async (int id,
+        ApiDefinitionService service,
+        UpdateApiDefinitionDTO dto,
+        DynamicProxyConfigProvider proxyConfigProvider) =>
         {
             try
             {
@@ -78,6 +86,7 @@ public static class ManagementEndpoint
                     return Results.NotFound($"API with {id} Not Found");
 
 
+                proxyConfigProvider.Reload();
                 var response = new ApiDefinitionResponseDTO(
                     Id: api.Id,
                     Name: api.Name,

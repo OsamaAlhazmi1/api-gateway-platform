@@ -3,7 +3,7 @@ Accept: application/json
 Client-Name : REST-Client
 
 ###
-GET http://localhost:5087/store/5
+GET http://localhost:5087/order/5
 Accept: application/json
 
 ###
