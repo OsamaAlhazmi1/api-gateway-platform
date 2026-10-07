@@ -14,25 +14,27 @@ POST http://localhost:5087/api/management/apis
 Content-Type: application/json
 
 {
-     "Name" :"Product",
-     "RoutePrefix":"/products",
-     "DestinationAddress":"http://localhost:7003/"
+    "Name" :"Orders Management API",
+    "RoutePrefix":"/store",
+    "DownstreamPath":"api/order",
+    "DestinationAddress":"http://localhost:5297/"
 }
 
 ###
 GET http://localhost:5087/api/management/apis/0
 
 ### 
-PUT http://localhost:5087/api/management/apis/2
+PUT http://localhost:5087/api/management/apis/7
 Content-Type: application/json
 
 {
     "Name" :"Orders Management API",
-    "RoutePrefix":"/store",
+    "RoutePrefix":"/order",
+    "DownstreamPath":"/api/order",
     "DestinationAddress":"http://localhost:5297/"
 }
 
 ###
 
-DELETE  http://localhost:5087/api/management/apis/5
+DELETE  http://localhost:5087/api/management/apis/2
 

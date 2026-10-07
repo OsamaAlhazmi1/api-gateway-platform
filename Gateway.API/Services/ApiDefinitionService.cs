@@ -14,7 +14,9 @@ public class ApiDefinitionService(GatewayDbContext context)
         var apiList = await context.ApiDefinitions.Select(api => new ApiDefinitionResponseDTO(
             Id: api.Id,
             Name: api.Name,
-            RoutePrefix: api.RoutePrefix
+            RoutePrefix: api.RoutePrefix,
+            DownstreamPath: api.DownstreamPath
+            
         )).AsNoTracking().ToListAsync();
 
         return apiList;
@@ -30,7 +32,8 @@ public class ApiDefinitionService(GatewayDbContext context)
         var response = new ApiDefinitionResponseDTO(
             Id: api.Id,
             Name: api.Name,
-            RoutePrefix: api.RoutePrefix
+            RoutePrefix: api.RoutePrefix,
+            DownstreamPath: api.DownstreamPath
 
         );
         return response;
@@ -52,7 +55,10 @@ public class ApiDefinitionService(GatewayDbContext context)
         {
             Name = dto.Name,
             RoutePrefix = dto.RoutePrefix,
-            DestinationAddress = dto.DestinationAddress
+            DestinationAddress = dto.DestinationAddress,
+            DownstreamPath =dto.DownstreamPath
+            
+            
         };
         await context.ApiDefinitions.AddAsync(newApi);
         await context.SaveChangesAsync();
@@ -80,6 +86,7 @@ public class ApiDefinitionService(GatewayDbContext context)
             api.Name = dto.Name;
             api.RoutePrefix = dto.RoutePrefix;
             api.DestinationAddress = dto.DestinationAddress;
+            api.DownstreamPath =dto.DownstreamPath;
             await context.SaveChangesAsync();
 
             return api;

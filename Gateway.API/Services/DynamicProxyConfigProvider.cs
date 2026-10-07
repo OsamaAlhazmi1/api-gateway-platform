@@ -29,7 +29,7 @@ public class DynamicProxyConfigProvider(IServiceScopeFactory scopeFactory) : IPr
             [
             new Dictionary<string, string>
             {
-                ["PathPattern"] = $"/api{api.RoutePrefix}/{{**catch-all}}"
+                ["PathPattern"] = $"{api.DownstreamPath}/{{**catch-all}}"
             }
             ]
 

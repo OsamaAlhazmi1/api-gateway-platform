@@ -19,6 +19,7 @@ public class GatewayDbContext(DbContextOptions<GatewayDbContext> options)
                 Id = 1,
                 Name = "Users API",
                 RoutePrefix = "/users",
+                DownstreamPath = "api/users",
                 DestinationAddress = "http://localhost:5024/"
             },
             new ApiDefinition
@@ -26,6 +27,7 @@ public class GatewayDbContext(DbContextOptions<GatewayDbContext> options)
                 Id = 2,
                 Name = "Orders API",
                 RoutePrefix = "/orders",
+                DownstreamPath = "/api/order",
                 DestinationAddress = "http://localhost:5297/"
             }
         );

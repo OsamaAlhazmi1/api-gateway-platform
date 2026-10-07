@@ -2,10 +2,10 @@ namespace Orders.API.Endpoints;
 
 public static class OrdersrdersEndpoints
 {
+    
     public static void MapOrdersEndpoints(this WebApplication app)
     {
-        var ordersGroup = app.MapGroup("/api/store");
-
+        var ordersGroup = app.MapGroup("/api/order");
 
 
         ordersGroup.MapGet("/{id}", (int id) =>

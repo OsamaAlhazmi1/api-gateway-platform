@@ -34,11 +34,12 @@ public static class ManagementEndpoint
             return Results.Ok(apiList);
         });
 
+
         managementGroup.MapPost("/apis", async (ApiDefinitionService service,
         CreateApiDefinitionDTO dto,
         DynamicProxyConfigProvider proxyConfigProvider) =>
         {
-            
+
             var newApi = await service.CreateAsync(dto);
 
             if (newApi == null)
@@ -49,7 +50,8 @@ public static class ManagementEndpoint
             var response = new ApiDefinitionResponseDTO(
                 Id: newApi.Id,
                 Name: newApi.Name,
-                RoutePrefix: newApi.RoutePrefix
+                RoutePrefix: newApi.RoutePrefix,
+                DownstreamPath: newApi.DownstreamPath
             );
 
             return Results.Ok(response);
@@ -78,41 +80,35 @@ public static class ManagementEndpoint
         UpdateApiDefinitionDTO dto,
         DynamicProxyConfigProvider proxyConfigProvider) =>
         {
-            try
-            {
-                var api = await service.UpdateAsync(id, dto);
 
-                if (api == null)
-                    return Results.NotFound($"API with {id} Not Found");
+            var api = await service.UpdateAsync(id, dto);
 
+            if (api == null)
+                return Results.NotFound($"API with {id} Not Found");
 
-                proxyConfigProvider.Reload();
-                var response = new ApiDefinitionResponseDTO(
-                    Id: api.Id,
-                    Name: api.Name,
-                    RoutePrefix: api.RoutePrefix
-                );
+            proxyConfigProvider.Reload();
 
-                return Results.Ok(response);
+            var response = new ApiDefinitionResponseDTO(
+                Id: api.Id,
+                Name: api.Name,
+                RoutePrefix: api.RoutePrefix,
+                DownstreamPath: api.DownstreamPath
+            );
 
-            }
-            catch (InvalidOperationException ex)
-            {
-                return Results.Conflict(ex.Message);
-            }
-
-
-
+            return Results.Ok(response);
 
         });
 
-        managementGroup.MapDelete("/apis/{id}", async (int id, ApiDefinitionService service) =>
+        managementGroup.MapDelete("/apis/{id}", async (
+        int id,
+        ApiDefinitionService service,
+        DynamicProxyConfigProvider proxyConfigProvider) =>
         {
             var deleted = await service.DeleteAsync(id);
 
             if (!deleted)
                 return Results.NotFound($"API with {id} Not Found");
-
+            proxyConfigProvider.Reload();
 
             return Results.Ok($"API with Id {id} has been Removed");
 
