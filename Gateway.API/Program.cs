@@ -1,3 +1,5 @@
+
+using Gateway.API.Auth;
 using Gateway.API.Data;
 using Gateway.API.Endpoints;
 using Gateway.API.Services;
@@ -22,13 +24,17 @@ try
             builder.Configuration.GetConnectionString("GatewayDb")));
     builder.Services.AddScoped<ApiDefinitionService>();
 
+    builder.Services.AddJwtAuthentication(); 
+    builder.Services.AddScoped<JwtTokenService>();
 
     var app = builder.Build();
 
-
+    app.UseAuthentication();
+    app.UseAuthorization();
     app.MigrateDb();
     app.MapManagementEndpoint();
     app.MapReverseProxy();
+    app.MapAuthenticationEndpoints();
     app.Run();
 
 

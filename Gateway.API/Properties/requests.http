@@ -3,7 +3,7 @@ Accept: application/json
 Client-Name : REST-Client
 
 ###
-GET http://localhost:5087/order/5
+GET http://localhost:5087/store/5
 Accept: application/json
 
 ###
@@ -15,8 +15,8 @@ Content-Type: application/json
 
 {
     "Name" :"Orders Management API",
-    "RoutePrefix":"/store",
-    "DownstreamPath":"api/order",
+    "RoutePrefix":"/order",
+    "DownstreamPath":"/api/order",
     "DestinationAddress":"http://localhost:5297/"
 }
 
@@ -29,7 +29,7 @@ Content-Type: application/json
 
 {
     "Name" :"Orders Management API",
-    "RoutePrefix":"/order",
+    "RoutePrefix":"/store",
     "DownstreamPath":"/api/order",
     "DestinationAddress":"http://localhost:5297/"
 }
@@ -37,4 +37,11 @@ Content-Type: application/json
 ###
 
 DELETE  http://localhost:5087/api/management/apis/2
+###
+POST  http://localhost:5087/api/auth/login
+Content-Type: application/json
 
+{
+    "Username":"admin",
+    "Role":"admin"
+}
