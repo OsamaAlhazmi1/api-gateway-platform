@@ -8,7 +8,7 @@ Accept: application/json
 
 ###
 GET http://localhost:5087/api/management/apis
-
+Authorization:bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJhZG1pbiIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6InVzZXIiLCJleHAiOjE3OTE0NDk0MzgsImlzcyI6IkFwaUdhdGV3YXlQbGF0Zm9ybSIsImF1ZCI6IkFwaUdhdGV3YXlDbGllbnRzIn0.CwDLP-1MklioPlCRiBZO_vFvtr8Rq315OPivB2We04g
 ###
 POST http://localhost:5087/api/management/apis
 Content-Type: application/json

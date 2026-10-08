@@ -14,7 +14,7 @@ public static class ManagementEndpoint
 
     public static void MapManagementEndpoint(this WebApplication app)
     {
-        var managementGroup = app.MapGroup("/api/management");
+        var managementGroup = app.MapGroup("/api/management").RequireAuthorization(policy=> policy.RequireRole("admin"));
 
         managementGroup.MapGet("/status", () =>
         {

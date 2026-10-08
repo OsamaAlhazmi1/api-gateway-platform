@@ -1,3 +1,4 @@
+using Gateway.API.DTOs.AuthDTOs;
 using Gateway.API.Services;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
@@ -12,14 +13,14 @@ public static class AuthenticationEndpoints
         var authGroup = app.MapGroup("/api/auth");
 
         authGroup.MapPost("/login", (
-        LoginRequest request,
+        LoginDTO dto,
         JwtTokenService tokenService) =>
         {
-            if (request.Username!="admin"|| request.Role!= "admin")
+            if (dto.Username!="admin"|| dto.Role!= "admin")
                 return ApiResponse.Fail("Unauthorized", 400);
             else
             {
-                var token = tokenService.GenerateToken(request.Username,request.Role );
+                var token = tokenService.GenerateToken(dto.Username,dto.Role );
                 var accsesTokken = new {token};
                 return ApiResponse.Success($"{accsesTokken}"); 
             }
@@ -27,5 +28,4 @@ public static class AuthenticationEndpoints
     }
 
 
-    public record LoginRequest(string Username ,string Role);
 }

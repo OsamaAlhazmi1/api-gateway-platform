@@ -24,7 +24,7 @@ try
             builder.Configuration.GetConnectionString("GatewayDb")));
     builder.Services.AddScoped<ApiDefinitionService>();
 
-    builder.Services.AddJwtAuthentication(); 
+    builder.Services.AddJwtAuthentication(builder.Configuration); 
     builder.Services.AddScoped<JwtTokenService>();
 
     var app = builder.Build();
