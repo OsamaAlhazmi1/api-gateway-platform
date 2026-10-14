@@ -8,7 +8,43 @@ namespace Gateway.API.Services;
 public class ApiClientServices(GatewayDbContext context)
 {
 
-    
+
+
+    public async Task<List<ApiClientResponseDTO>> GetAllAsync()
+    {
+        var apiList = await context.ApiClients.Select(api => new ApiClientResponseDTO(
+        Id: api.Id,
+        Name: api.Name,
+        ApiKey: api.ApiKey,
+        IsActive: api.IsActive,
+        CreatedAt: api.CreatedAt
+
+    )).AsNoTracking().ToListAsync();
+
+        return apiList;
+    }
+
+    public async Task<ApiClientResponseDTO?> GetByIdAsync(int id)
+    {
+        var client = await context.ApiClients.FirstOrDefaultAsync(api => api.Id == id);
+
+        if (client == null)
+            return null;
+        else
+        {
+            var response = new ApiClientResponseDTO(
+                Id: client.Id,
+                Name: client.Name,
+                ApiKey: client.ApiKey,
+                IsActive: client.IsActive,
+                CreatedAt: client.CreatedAt
+            );
+
+            return response;
+        }
+
+    }
+
     public async Task<ApiClient?> CreateAsync(CreateApiClientDTO dto)
     {
         var exist = await context.ApiClients.FirstOrDefaultAsync(
@@ -51,16 +87,40 @@ public class ApiClientServices(GatewayDbContext context)
         else
         {
             apiClient.Name = dto.Name;
-            apiClient.ApiKey =dto.ApiKey; 
-            apiClient.IsActive = dto.IsActive; 
+            apiClient.ApiKey = dto.ApiKey;
+            apiClient.IsActive = dto.IsActive;
             apiClient.CreatedAt = dto.CreatedAt;
 
-            await context.SaveChangesAsync(); 
+            await context.SaveChangesAsync();
 
             return apiClient;
 
         }
 
+    }
+    public async Task<bool> DeleteAsync(int id)
+    {
+        var client = await context.ApiClients.FirstOrDefaultAsync(api => api.Id == id);
+
+        if (client == null)
+            return false;
+        else
+        {
+            context.ApiClients.Remove(client);
+            await context.SaveChangesAsync();
+            return true;
+        }
+    }
+
+    public async Task<ApiClient?> GetByApiKeyAsync(string apiKey)
+    {
+        var client = await context.ApiClients.FirstOrDefaultAsync(api => api.ApiKey == apiKey);
+
+        if (client == null)
+            return null;
+
+
+        return client;
 
     }
 

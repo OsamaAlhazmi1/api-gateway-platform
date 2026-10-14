@@ -23,6 +23,7 @@ try
         options.UseNpgsql(
             builder.Configuration.GetConnectionString("GatewayDb")));
     builder.Services.AddScoped<ApiDefinitionService>();
+    builder.Services.AddScoped<ApiClientServices>();
 
     builder.Services.AddJwtAuthentication(builder.Configuration); 
     builder.Services.AddScoped<JwtTokenService>();
