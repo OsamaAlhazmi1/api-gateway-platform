@@ -129,6 +129,13 @@ public static class ManagementEndpoint
             return Results.Ok(response); 
 
         });
+
+        managementGroup.MapGet("/clients" ,async (ApiClientServices services) =>
+        {
+            var ClinetList = await services.GetAllAsync();
+
+            return Results.Ok(ClinetList); 
+        });
     }
     
 }
