@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using Gateway.API.Data;
 using Gateway.API.DTOs.ApiDefinitionDTOs;
 using Gateway.API.Models;
@@ -45,28 +46,21 @@ public class ApiClientServices(GatewayDbContext context)
 
     }
 
-    public async Task<ApiClient?> CreateAsync(CreateApiClientDTO dto)
+    public async Task<ApiClient> CreateAsync(string name)
     {
-        var exist = await context.ApiClients.FirstOrDefaultAsync(
-        key => key.Name == dto.Name
-        || key.ApiKey == dto.ApiKey);
+        var apikey = Convert.ToBase64String(
+        RandomNumberGenerator.GetBytes(32));
 
-        if (exist != null)
-            return null;
-
-
-        var newApiClient = new ApiClient()
+        var client = new ApiClient()
         {
-            Name = dto.Name,
-            ApiKey = dto.ApiKey,
-            IsActive = dto.IsActive,
-            CreatedAt = dto.CreatedAt
+            Name = name,
+            ApiKey = apikey,
+            IsActive = true
         };
-        await context.ApiClients.AddAsync(newApiClient);
+        await context.ApiClients.AddAsync(client);
         await context.SaveChangesAsync();
 
-        return newApiClient;
-
+        return client ;
     }
 
     public async Task<ApiClient?> UpdateAsync(int id, UpdateApiClientDTO dto)
@@ -114,7 +108,7 @@ public class ApiClientServices(GatewayDbContext context)
 
     public async Task<ApiClient?> GetByApiKeyAsync(string apiKey)
     {
-        var client = await context.ApiClients.FirstOrDefaultAsync(api => api.ApiKey == apiKey);
+        var client = await context.ApiClients.FirstOrDefaultAsync(api => api.ApiKey == apiKey && api.IsActive == true);
 
         if (client == null)
             return null;

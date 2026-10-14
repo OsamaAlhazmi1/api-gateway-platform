@@ -113,5 +113,22 @@ public static class ManagementEndpoint
             return Results.Ok($"API with Id {id} has been Removed");
 
         });
+
+        managementGroup.MapPost("/clients/",async (CreateApiClientDTO dto , ApiClientServices services) =>
+        {
+            var client = await services.CreateAsync(dto.Name);
+
+            var response = new ApiClientResponseDTO(
+                Id: client.Id,
+                Name: client.Name,
+                ApiKey: client.ApiKey,
+                IsActive:client.IsActive,
+                CreatedAt:client.CreatedAt
+            );
+
+            return Results.Ok(response); 
+
+        });
     }
+    
 }

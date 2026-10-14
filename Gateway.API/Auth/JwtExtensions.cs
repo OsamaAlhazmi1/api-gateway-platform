@@ -1,4 +1,5 @@
 using System.Text;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 
@@ -12,16 +13,16 @@ public static class JwtExtensions
     {
         var jwtSection = configuration.GetSection("Jwt")
             ?? throw new InvalidOperationException("JWT Section is not configured");
-        
+
         var secretKey = jwtSection["Key"]
             ?? throw new InvalidOperationException("JWT SecretKey is not configured.");
 
         var issuer = jwtSection["Issuer"]
             ?? throw new InvalidOperationException("JWT issuer  is not configured");
-            
-        var audience = jwtSection["Audience"] 
+
+        var audience = jwtSection["Audience"]
             ?? throw new InvalidOperationException("JWT issuer  is not configured");
-        
+
         services
             .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
@@ -41,9 +42,18 @@ public static class JwtExtensions
                         Encoding.UTF8.GetBytes(
                             secretKey))
                 };
-            });
 
-        services.AddAuthorization();
+            }).AddScheme<AuthenticationSchemeOptions, ApiKeyAuthenticationHandler>(
+                "ApiKey",
+                options => { }); ;
+
+
+        services.AddAuthorizationBuilder()
+            .AddPolicy("ApiKeyPolicy", policy =>
+            {
+                policy.AddAuthenticationSchemes("ApiKey");
+                policy.RequireAuthenticatedUser();
+            });
 
         return services;
     }

@@ -34,7 +34,7 @@ try
     app.UseAuthorization();
     app.MigrateDb();
     app.MapManagementEndpoint();
-    app.MapReverseProxy();
+    app.MapReverseProxy().RequireAuthorization("ApiKeyPolicy");
     app.MapAuthenticationEndpoints();
     app.Run();
 

@@ -43,5 +43,14 @@ Content-Type: application/json
 
 {
     "Username":"admin",
-    "Role":"user"
+    "Role":"admin"
+}
+
+###
+POST  http://localhost:5087/api/management/clients
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJhZG1pbiIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6ImFkbWluIiwiZXhwIjoxNzkxOTY5MzgzLCJpc3MiOiJBcGlHYXRld2F5UGxhdGZvcm0iLCJhdWQiOiJBcGlHYXRld2F5Q2xpZW50cyJ9.bnnEY0SVfT0gzCFqdMR_8I42K_8ZKcqYG2aOZ7Opnkk
+Content-Type: application/json
+
+{
+    "Name" : "Mobile"
 }
