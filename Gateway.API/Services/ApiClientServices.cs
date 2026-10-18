@@ -82,11 +82,12 @@ public class ApiClientServices(GatewayDbContext context)
 
         if (apiClient == null)
             return null;
+        var hashedDTOApiKey = HashAPIKey(dto.ApiKey);
 
         var exist = await context.ApiClients.AnyAsync(
         key => key.Name == dto.Name &&
         key.Id == id
-        || key.ApiKeyHash == dto.ApiKey);
+        || key.ApiKeyHash == hashedDTOApiKey);
 
         if (exist)
             throw new InvalidOperationException("An api Clinet with same name or with same apiKey exist");
@@ -94,7 +95,7 @@ public class ApiClientServices(GatewayDbContext context)
         else
         {
             apiClient.Name = dto.Name;
-            apiClient.ApiKeyHash = dto.ApiKey;
+            apiClient.ApiKeyHash = hashedDTOApiKey;
             apiClient.IsActive = dto.IsActive;
             apiClient.CreatedAt = dto.CreatedAt;
 
@@ -126,6 +127,35 @@ public class ApiClientServices(GatewayDbContext context)
         return Convert.ToBase64String(hash);
     }
 
+
+    public async Task<bool> DeactivateApiKeyAsync(int id)
+    {
+        var client = await context.ApiClients
+            .FirstOrDefaultAsync(client => client.Id == id);
+
+        if (client is null || !client.IsActive)
+            return false;
+
+        client.IsActive = false;
+
+        await context.SaveChangesAsync();
+
+        return true;
+    }
+    public async Task<bool> ActivateApiKeyAsync(int id)
+    {
+        var client = await context.ApiClients
+            .FirstOrDefaultAsync(client => client.Id == id);
+
+        if (client is null || client.IsActive)
+            return false;
+
+        client.IsActive = true;
+
+        await context.SaveChangesAsync();
+
+        return true;
+    }
 
 
 }

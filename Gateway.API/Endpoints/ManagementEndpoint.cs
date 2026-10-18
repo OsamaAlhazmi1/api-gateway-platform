@@ -142,9 +142,28 @@ public static class ManagementEndpoint
             var clinet = await services.DeleteAsync(id);
 
             if (!clinet)
-                return ApiResponse.Fail($"API with ID : {id} Not Found", 400);
+                return ApiResponse.Fail($"API Clinet with ID : {id} Not Found", 400);
             else
                 return ApiResponse.Success($"API clinet with ID : {id} is deleted", 200);
+
+        });
+
+        managementGroup.MapPatch("/clients/{id}/deactivate", async (int id, ApiClientServices services) =>
+        {
+            var client = await services.DeactivateApiKeyAsync(id);
+            if (!client)
+                return ApiResponse.Fail($"API Clinet with ID : {id} Not Found", 404);
+
+            return ApiResponse.Success($"API key for clinet with ID : {id} is deactivate ", 200);
+
+        });
+        managementGroup.MapPatch("/clients/{id}/activate", async (int id, ApiClientServices services) =>
+        {
+            var client = await services.ActivateApiKeyAsync(id);
+            if (!client)
+                return ApiResponse.Fail($"API Clinet with ID : {id} Not Found", 404);
+
+            return ApiResponse.Success($"API key for clinet with ID : {id} is activate ", 200);
 
         });
     }
