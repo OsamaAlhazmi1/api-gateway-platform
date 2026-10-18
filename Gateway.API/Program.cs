@@ -28,26 +28,8 @@ try
 
     builder.Services.AddJwtAuthentication(builder.Configuration);
     builder.Services.AddScoped<JwtTokenService>();
-    builder.Services.AddRateLimiter(options =>
-    {
-        options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    builder.Services.AddGatewayRateLimiting();
 
-        options.AddPolicy("ProxyPerApiClient", context =>
-        {
-            var clientId = context.User.FindFirst("ApiClientId")?.Value
-                ?? "unknown-client";
-
-            return RateLimitPartition.GetFixedWindowLimiter(
-                partitionKey: clientId,
-                factory: _ => new FixedWindowRateLimiterOptions
-                {
-                    PermitLimit = 10,
-                    Window = TimeSpan.FromMinutes(1),
-                    QueueLimit = 0,
-                    AutoReplenishment = true
-                });
-        });
-    });
 
     var app = builder.Build();
 
