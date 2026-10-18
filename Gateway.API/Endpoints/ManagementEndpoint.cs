@@ -14,7 +14,7 @@ public static class ManagementEndpoint
 
     public static void MapManagementEndpoint(this WebApplication app)
     {
-        var managementGroup = app.MapGroup("/api/management").RequireAuthorization(policy=> policy.RequireRole("admin"));
+        var managementGroup = app.MapGroup("/api/management").RequireAuthorization(policy => policy.RequireRole("admin"));
 
         managementGroup.MapGet("/status", () =>
         {
@@ -114,28 +114,39 @@ public static class ManagementEndpoint
 
         });
 
-        managementGroup.MapPost("/clients/",async (CreateApiClientDTO dto , ApiClientServices services) =>
+        managementGroup.MapPost("/clients/", async (CreateApiClientDTO dto, ApiClientServices services) =>
         {
-            var client = await services.CreateAsync(dto.Name);
+            var (client, apiKey) = await services.CreateAsync(dto.Name);
 
             var response = new ApiClientResponseDTO(
                 Id: client.Id,
                 Name: client.Name,
-                ApiKey: client.ApiKey,
-                IsActive:client.IsActive,
-                CreatedAt:client.CreatedAt
+                ApiKey: apiKey,
+                IsActive: client.IsActive,
+                CreatedAt: client.CreatedAt
             );
 
-            return Results.Ok(response); 
+            return Results.Ok(response);
 
         });
 
-        managementGroup.MapGet("/clients" ,async (ApiClientServices services) =>
+        managementGroup.MapGet("/clients", async (ApiClientServices services) =>
         {
             var ClinetList = await services.GetAllAsync();
 
-            return Results.Ok(ClinetList); 
+            return Results.Ok(ClinetList);
+        });
+
+        managementGroup.MapDelete("/clients/{id}", async (int id, ApiClientServices services) =>
+        {
+            var clinet = await services.DeleteAsync(id);
+
+            if (!clinet)
+                return ApiResponse.Fail($"API with ID : {id} Not Found", 400);
+            else
+                return ApiResponse.Success($"API clinet with ID : {id} is deleted", 200);
+
         });
     }
-    
+
 }

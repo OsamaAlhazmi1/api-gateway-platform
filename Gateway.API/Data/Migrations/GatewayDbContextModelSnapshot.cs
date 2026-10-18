@@ -30,7 +30,7 @@ namespace Gateway.API.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("ApiKey")
+                    b.Property<string>("ApiKeyHash")
                         .IsRequired()
                         .HasColumnType("text");
 

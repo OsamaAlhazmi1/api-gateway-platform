@@ -1,4 +1,5 @@
 using System.Security.Cryptography;
+using System.Text;
 using Gateway.API.Data;
 using Gateway.API.DTOs.ApiDefinitionDTOs;
 using Gateway.API.Models;
@@ -16,7 +17,7 @@ public class ApiClientServices(GatewayDbContext context)
         var apiList = await context.ApiClients.Select(api => new ApiClientResponseDTO(
         Id: api.Id,
         Name: api.Name,
-        ApiKey: api.ApiKey,
+        ApiKey: api.ApiKeyHash,
         IsActive: api.IsActive,
         CreatedAt: api.CreatedAt
 
@@ -36,7 +37,7 @@ public class ApiClientServices(GatewayDbContext context)
             var response = new ApiClientResponseDTO(
                 Id: client.Id,
                 Name: client.Name,
-                ApiKey: client.ApiKey,
+                ApiKey: client.ApiKeyHash,
                 IsActive: client.IsActive,
                 CreatedAt: client.CreatedAt
             );
@@ -46,7 +47,7 @@ public class ApiClientServices(GatewayDbContext context)
 
     }
 
-    public async Task<ApiClient> CreateAsync(string name)
+    public async Task<(ApiClient Client, string Apikey)> CreateAsync(string name)
     {
         var apikey = Convert.ToBase64String(
         RandomNumberGenerator.GetBytes(32));
@@ -54,13 +55,25 @@ public class ApiClientServices(GatewayDbContext context)
         var client = new ApiClient()
         {
             Name = name,
-            ApiKey = apikey,
+            ApiKeyHash = HashAPIKey(apikey),
             IsActive = true
         };
         await context.ApiClients.AddAsync(client);
         await context.SaveChangesAsync();
 
-        return client ;
+        return (client, apikey);
+    }
+
+    public async Task<ApiClient?> GetByApiKeyAsync(string apiKey)
+    {
+        var hashKey = HashAPIKey(apiKey);
+        var client = await context.ApiClients.FirstOrDefaultAsync(api => api.ApiKeyHash == hashKey && api.IsActive == true);
+
+        if (client == null)
+            return null;
+
+        return client;
+
     }
 
     public async Task<ApiClient?> UpdateAsync(int id, UpdateApiClientDTO dto)
@@ -73,7 +86,7 @@ public class ApiClientServices(GatewayDbContext context)
         var exist = await context.ApiClients.AnyAsync(
         key => key.Name == dto.Name &&
         key.Id == id
-        || key.ApiKey == dto.ApiKey);
+        || key.ApiKeyHash == dto.ApiKey);
 
         if (exist)
             throw new InvalidOperationException("An api Clinet with same name or with same apiKey exist");
@@ -81,7 +94,7 @@ public class ApiClientServices(GatewayDbContext context)
         else
         {
             apiClient.Name = dto.Name;
-            apiClient.ApiKey = dto.ApiKey;
+            apiClient.ApiKeyHash = dto.ApiKey;
             apiClient.IsActive = dto.IsActive;
             apiClient.CreatedAt = dto.CreatedAt;
 
@@ -106,18 +119,13 @@ public class ApiClientServices(GatewayDbContext context)
         }
     }
 
-    public async Task<ApiClient?> GetByApiKeyAsync(string apiKey)
+
+    private static string HashAPIKey(string apikey)
     {
-        var client = await context.ApiClients.FirstOrDefaultAsync(api => api.ApiKey == apiKey && api.IsActive == true);
-
-        if (client == null)
-            return null;
-
-
-        return client;
-
+        var hash = SHA256.HashData(Encoding.UTF8.GetBytes(apikey));
+        return Convert.ToBase64String(hash);
     }
 
-   
+
 
 }

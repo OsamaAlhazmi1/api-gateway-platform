@@ -7,7 +7,7 @@ public class ApiClient
 
     public string Name { get; set; } = "";
 
-    public string ApiKey { get; set; } = "";
+    public string ApiKeyHash { get; set; } = "";
 
     public bool IsActive { get; set; } = true;
 
