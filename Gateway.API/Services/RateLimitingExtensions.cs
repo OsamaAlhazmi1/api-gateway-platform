@@ -1,7 +1,9 @@
-namespace Gateway.API.Services;
 
+using System.Globalization;
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.RateLimiting;
+
+namespace Gateway.API.Services;
 
 public static class RateLimitingExtensions
 {
@@ -19,11 +21,24 @@ public static class RateLimitingExtensions
                     .FindFirst("ApiClientId")?.Value
                     ?? "unknown-client";
 
+                var rateLimitValue = context.User
+                    .FindFirst("RateLimitPerMinute")?.Value;
+
+                var permitLimit = int.TryParse(
+                    rateLimitValue,
+                    NumberStyles.None,
+                    CultureInfo.InvariantCulture,
+                    out var configuredLimit)
+                    ? configuredLimit
+                    : 10;
+
+                permitLimit = Math.Max(1, permitLimit);
+
                 return RateLimitPartition.GetFixedWindowLimiter(
                     partitionKey: clientId,
                     factory: _ => new FixedWindowRateLimiterOptions
                     {
-                        PermitLimit = 10,
+                        PermitLimit = permitLimit,
                         Window = TimeSpan.FromMinutes(1),
                         QueueLimit = 0,
                         AutoReplenishment = true

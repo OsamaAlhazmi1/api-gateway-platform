@@ -44,6 +44,9 @@ namespace Gateway.API.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int>("RateLimitPerMinute")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.ToTable("ApiClients");

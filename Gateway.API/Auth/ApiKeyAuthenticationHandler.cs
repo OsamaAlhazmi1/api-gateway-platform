@@ -35,7 +35,11 @@ public class ApiKeyAuthenticationHandler(
         var claims = new[]
         {
             new Claim(ClaimTypes.Name, client.Name),
-            new Claim("ApiClientId", client.Id.ToString())
+            new Claim("ApiClientId", client.Id.ToString()),
+            new Claim(
+                "RateLimitPerMinute",
+                client.RateLimitPerMinute.ToString(
+                    System.Globalization.CultureInfo.InvariantCulture))
         };
 
         var identity = new ClaimsIdentity(

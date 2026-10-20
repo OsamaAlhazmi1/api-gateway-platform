@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 using Gateway.API.Data;
+using Gateway.API.DTOs.ApiClientDTOs;
 using Gateway.API.DTOs.ApiDefinitionDTOs;
 using Gateway.API.Models;
 using Microsoft.EntityFrameworkCore;
@@ -14,21 +15,22 @@ public class ApiClientServices(GatewayDbContext context)
 
     public async Task<List<ApiClientResponseDTO>> GetAllAsync()
     {
-        var apiList = await context.ApiClients.Select(api => new ApiClientResponseDTO(
-        Id: api.Id,
-        Name: api.Name,
-        ApiKey: api.ApiKeyHash,
-        IsActive: api.IsActive,
-        CreatedAt: api.CreatedAt
+        var ClientsList = await context.ApiClients.Select(c => new ApiClientResponseDTO(
+        Id: c.Id,
+        Name: c.Name,
+        ApiKey: c.ApiKeyHash,
+        IsActive: c.IsActive,
+        RateLimit:c.RateLimitPerMinute,
+        CreatedAt: c.CreatedAt
 
     )).AsNoTracking().ToListAsync();
 
-        return apiList;
+        return ClientsList;
     }
 
     public async Task<ApiClientResponseDTO?> GetByIdAsync(int id)
     {
-        var client = await context.ApiClients.FirstOrDefaultAsync(api => api.Id == id);
+        var client = await context.ApiClients.FirstOrDefaultAsync(c => c.Id == id);
 
         if (client == null)
             return null;
@@ -39,6 +41,7 @@ public class ApiClientServices(GatewayDbContext context)
                 Name: client.Name,
                 ApiKey: client.ApiKeyHash,
                 IsActive: client.IsActive,
+                RateLimit: client.RateLimitPerMinute,
                 CreatedAt: client.CreatedAt
             );
 
@@ -67,7 +70,7 @@ public class ApiClientServices(GatewayDbContext context)
     public async Task<ApiClient?> GetByApiKeyAsync(string apiKey)
     {
         var hashKey = HashAPIKey(apiKey);
-        var client = await context.ApiClients.FirstOrDefaultAsync(api => api.ApiKeyHash == hashKey && api.IsActive == true);
+        var client = await context.ApiClients.FirstOrDefaultAsync(c => c.ApiKeyHash == hashKey && c.IsActive == true);
 
         if (client == null)
             return null;
@@ -108,7 +111,7 @@ public class ApiClientServices(GatewayDbContext context)
     }
     public async Task<bool> DeleteAsync(int id)
     {
-        var client = await context.ApiClients.FirstOrDefaultAsync(api => api.Id == id);
+        var client = await context.ApiClients.FirstOrDefaultAsync(c => c.Id == id);
 
         if (client == null)
             return false;
@@ -131,7 +134,7 @@ public class ApiClientServices(GatewayDbContext context)
     public async Task<bool> DeactivateApiKeyAsync(int id)
     {
         var client = await context.ApiClients
-            .FirstOrDefaultAsync(client => client.Id == id);
+            .FirstOrDefaultAsync(c => c.Id == id);
 
         if (client is null || !client.IsActive)
             return false;
@@ -145,7 +148,7 @@ public class ApiClientServices(GatewayDbContext context)
     public async Task<bool> ActivateApiKeyAsync(int id)
     {
         var client = await context.ApiClients
-            .FirstOrDefaultAsync(client => client.Id == id);
+            .FirstOrDefaultAsync(c => c.Id == id);
 
         if (client is null || client.IsActive)
             return false;
@@ -155,6 +158,18 @@ public class ApiClientServices(GatewayDbContext context)
         await context.SaveChangesAsync();
 
         return true;
+    }
+
+    public async Task<bool>UpdateClientRateLimitAsync(int id ,int rateLimit)
+    {
+        var client = await context.ApiClients.FirstOrDefaultAsync(c=> c.Id == id); 
+
+        if (client == null )
+            return false; 
+        
+        client.RateLimitPerMinute = rateLimit ;
+        await context.SaveChangesAsync(); 
+        return true; 
     }
 
 

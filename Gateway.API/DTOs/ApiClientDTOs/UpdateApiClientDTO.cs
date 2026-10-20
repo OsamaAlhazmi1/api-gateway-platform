@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Gateway.API.DTOs.ApiDefinitionDTOs;
+namespace Gateway.API.DTOs.ApiClientDTOs;
 
 public record UpdateApiClientDTO
 (

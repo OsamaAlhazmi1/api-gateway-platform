@@ -1,5 +1,6 @@
 using Gateway.API.Data;
 using Gateway.API.DTOs;
+using Gateway.API.DTOs.ApiClientDTOs;
 using Gateway.API.DTOs.ApiDefinitionDTOs;
 using Gateway.API.Models;
 using Gateway.API.Services;
@@ -123,6 +124,7 @@ public static class ManagementEndpoint
                 Name: client.Name,
                 ApiKey: apiKey,
                 IsActive: client.IsActive,
+                RateLimit:client.RateLimitPerMinute,
                 CreatedAt: client.CreatedAt
             );
 
@@ -166,6 +168,21 @@ public static class ManagementEndpoint
             return ApiResponse.Success($"API key for clinet with ID : {id} is activate ", 200);
 
         });
+
+        managementGroup.MapPatch("/clients/{id}/rate-limit",async (int id ,UpdateClientRateLimitDTO dto, ApiClientServices services) =>
+        {
+            var client = await services.UpdateClientRateLimitAsync(id, dto.RateLimitPerMinute);
+
+            if (!client)
+                return ApiResponse.Fail($"API Clinet with ID : {id} Not Found", 404);
+            
+            return ApiResponse.Success($"API rate limit is updated for the clinet with ID : {id}  ",new
+            {
+                id ,
+                dto.RateLimitPerMinute
+            }); 
+
+        }); 
     }
 
 }
