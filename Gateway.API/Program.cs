@@ -20,6 +20,8 @@ try
     builder.Services.AddSingleton<IProxyConfigProvider>(sp =>
         sp.GetRequiredService<DynamicProxyConfigProvider>());
 
+    
+
     builder.Services.AddDbContext<GatewayDbContext>(options =>
         options.UseNpgsql(
             builder.Configuration.GetConnectionString("GatewayDb")));

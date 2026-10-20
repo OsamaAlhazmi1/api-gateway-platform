@@ -10,6 +10,9 @@ public static class RateLimitingExtensions
     public static IServiceCollection AddGatewayRateLimiting(
         this IServiceCollection services)
     {
+        services.AddSingleton<ClientRateLimitManager>();
+
+
         services.AddRateLimiter(options =>
         {
             options.RejectionStatusCode =
@@ -17,9 +20,11 @@ public static class RateLimitingExtensions
 
             options.AddPolicy("ProxyPerApiClient", context =>
             {
-                var clientId = context.User
+                var clientIdValue = context.User
                     .FindFirst("ApiClientId")?.Value
                     ?? "unknown-client";
+
+                var clientId = int.Parse(clientIdValue);
 
                 var rateLimitValue = context.User
                     .FindFirst("RateLimitPerMinute")?.Value;
@@ -34,15 +39,12 @@ public static class RateLimitingExtensions
 
                 permitLimit = Math.Max(1, permitLimit);
 
-                return RateLimitPartition.GetFixedWindowLimiter(
-                    partitionKey: clientId,
-                    factory: _ => new FixedWindowRateLimiterOptions
-                    {
-                        PermitLimit = permitLimit,
-                        Window = TimeSpan.FromMinutes(1),
-                        QueueLimit = 0,
-                        AutoReplenishment = true
-                    });
+
+                var manager = context.RequestServices.GetRequiredService<ClientRateLimitManager>();
+
+                var limiter = manager.GetOrCreateLimiter(clientId, permitLimit) ;
+
+                return RateLimitPartition.Get(clientId, _ => limiter);
             });
         });
 

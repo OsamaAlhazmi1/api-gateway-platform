@@ -17,16 +17,31 @@ public class ClientRateLimitManager
             QueueLimit = 0,
             AutoReplenishment = true
         };
-        var fixedWindowRateLimiter = new FixedWindowRateLimiter(options); 
+        var fixedWindowRateLimiter = new FixedWindowRateLimiter(options);
 
         return fixedWindowRateLimiter;
     }
 
-    private FixedWindowRateLimiter GetOrCreateLimiter(int clientId , int permitLimit)
+    public FixedWindowRateLimiter GetOrCreateLimiter(int clientId, int permitLimit)
     {
-        permitLimit = Math.Max(1,permitLimit);
+        permitLimit = Math.Max(1, permitLimit);
 
-        var limiter = _limiters.GetOrAdd(clientId,_=> CreateLimiter(permitLimit));
-        return limiter; 
+        var limiter = _limiters.GetOrAdd(clientId, _ => CreateLimiter(permitLimit));
+        return limiter;
+    }
+    public void UpdateLimiter(int clientId, int permitLimit)
+    {
+        permitLimit = Math.Max(1, permitLimit);
+
+        var newLimiter = CreateLimiter(permitLimit);
+
+        _limiters.AddOrUpdate(
+            clientId,
+            newLimiter,
+            (_, oldLimiter) =>
+            {
+                oldLimiter.Dispose();
+                return newLimiter;
+            });
     }
 }

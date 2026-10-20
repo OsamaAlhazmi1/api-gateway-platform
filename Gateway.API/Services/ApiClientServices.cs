@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Gateway.API.Services;
 
-public class ApiClientServices(GatewayDbContext context)
+public class ApiClientServices(GatewayDbContext context,ClientRateLimitManager clientRateLimitManager)
 {
 
 
@@ -169,6 +169,9 @@ public class ApiClientServices(GatewayDbContext context)
         
         client.RateLimitPerMinute = rateLimit ;
         await context.SaveChangesAsync(); 
+
+        clientRateLimitManager.UpdateLimiter(id, rateLimit);
+        
         return true; 
     }
 
