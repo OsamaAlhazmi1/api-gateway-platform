@@ -123,13 +123,12 @@ namespace Gateway.API.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<string>("Path")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<int>("StatusCode")
+                        .HasColumnType("integer");
 
                     b.Property<DateTime>("TimestampUtc")
                         .HasColumnType("timestamp with time zone");

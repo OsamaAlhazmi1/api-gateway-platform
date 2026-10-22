@@ -10,9 +10,6 @@ namespace Gateway.API.Services;
 
 public class ApiClientServices(GatewayDbContext context,ClientRateLimitManager clientRateLimitManager)
 {
-
-
-
     public async Task<List<ApiClientResponseDTO>> GetAllAsync()
     {
         var ClientsList = await context.ApiClients.Select(c => new ApiClientResponseDTO(

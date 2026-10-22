@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Gateway.API.Migrations
 {
     [DbContext(typeof(GatewayDbContext))]
-    [Migration("20261022093409_AddApiReqestLog")]
+    [Migration("20261022094943_AddApiReqestLog")]
     partial class AddApiReqestLog
     {
         /// <inheritdoc />
@@ -123,10 +123,6 @@ namespace Gateway.API.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<string>("Method")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
 
