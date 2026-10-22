@@ -8,6 +8,7 @@ public class GatewayDbContext(DbContextOptions<GatewayDbContext> options)
 {
     public DbSet<ApiDefinition> ApiDefinitions => Set<ApiDefinition>();
     public DbSet<ApiClient> ApiClients => Set<ApiClient>();
+    public DbSet<ApiRequestLog> ApiRequestLogs => Set<ApiRequestLog>();
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
