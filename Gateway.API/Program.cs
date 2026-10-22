@@ -20,8 +20,7 @@ try
     builder.Services.AddSingleton<IProxyConfigProvider>(sp =>
         sp.GetRequiredService<DynamicProxyConfigProvider>());
 
-    
-
+    builder.Services.AddGatewayRateLimiting();
     builder.Services.AddDbContext<GatewayDbContext>(options =>
         options.UseNpgsql(
             builder.Configuration.GetConnectionString("GatewayDb")));
@@ -30,7 +29,6 @@ try
 
     builder.Services.AddJwtAuthentication(builder.Configuration);
     builder.Services.AddScoped<JwtTokenService>();
-    builder.Services.AddGatewayRateLimiting();
 
 
     var app = builder.Build();
@@ -39,10 +37,11 @@ try
     app.UseAuthorization();
     app.MigrateDb();
     app.MapManagementEndpoint();
-    app.UseRateLimiter();
-    app.MapReverseProxy()
-        .RequireAuthorization("ApiKeyPolicy")
-        .RequireRateLimiting("ProxyPerApiClient");
+    app.MapReverseProxy(proxyPipeline =>
+    {
+        proxyPipeline.UseClientRateLimiting();
+    }).RequireAuthorization("ApiKeyPolicy");
+    // app.MapReverseProxy(proxyPipeLine => proxyPipeLine.GetClientIDValue());
     app.MapAuthenticationEndpoints();
     app.Run();
 

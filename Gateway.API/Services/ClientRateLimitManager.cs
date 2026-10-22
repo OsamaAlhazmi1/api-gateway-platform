@@ -44,4 +44,14 @@ public class ClientRateLimitManager
                 return newLimiter;
             });
     }
+
+    public bool TryAcquirePermit(int clientId,int permitLimit)
+    {
+        var limiter = GetOrCreateLimiter(clientId,permitLimit); 
+
+        var lease = limiter.AttemptAcquire(1);
+
+        return lease.IsAcquired ;  
+;
+    }
 }
